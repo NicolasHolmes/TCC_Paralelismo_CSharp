@@ -229,5 +229,5 @@ namespace Infrastructure.Services
 
             ConsoleExtension.WriteNotification($"{DateTime.Now}: Concluído!");
         }
-}
+    }
 }
