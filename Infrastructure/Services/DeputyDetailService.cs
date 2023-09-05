@@ -52,27 +52,27 @@ namespace Infrastructure.Services
             List<int> ids = await _deputyDBRepository.SelectIdsOfDeputiesAsync();
 
             #region Thread
-            List<Thread> threads = new List<Thread>();
-            List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
+            //List<Thread> threads = new List<Thread>();
+            //List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
 
-            foreach (int id in ids)
-            {
-                requestNumber++;
-                Thread thread = new Thread(() =>
-                {
-                    try
-                    {
-                        deputiesResponses.Add(GetDeputiesDetailResponseByApiAsync(id, requestNumber).Result);
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                });
-                thread.Start();
-                Task.Delay(250).Wait();
-                threads.Add(thread);
-            }
-            threads.ForEach(thread => thread.Join());
+            //foreach (int id in ids)
+            //{
+            //    requestNumber++;
+            //    Thread thread = new Thread(() =>
+            //    {
+            //        try
+            //        {
+            //            deputiesResponses.Add(GetDeputiesDetailResponseByApiAsync(id, requestNumber).Result);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //        }
+            //    });
+            //    thread.Start();
+            //    Task.Delay(250).Wait();
+            //    threads.Add(thread);
+            //}
+            //threads.ForEach(thread => thread.Join());
             #region SalvandoUmPorUm
             //requestNumber = 0;
             //foreach (DeputiesDetailResponse response in deputiesResponses)
@@ -96,26 +96,26 @@ namespace Infrastructure.Services
 
             #region BulkInsert
             //Prepare a lista de entidades para o Bulk Insert
-            List<DeputiesDetailEntity> entitiesToInsert = new List<DeputiesDetailEntity>();
-            foreach (DeputiesDetailResponse response in deputiesResponses)
-            {
-                DeputiesDetailEntity entity = new DeputiesDetailEntity
-                {
-                    IdEndpointDeputado = response.dados.id,
-                    NomeCivil = response.dados.nomeCivil,
-                    Cpf = response.dados.cpf,
-                    Sexo = response.dados.sexo,
-                    DataNascimento = response.dados.dataNascimento,
-                    UfNascimento = response.dados.ufNascimento,
-                    MunicipioNascimento = response.dados.municipioNascimento,
-                    Escolaridade = response.dados.escolaridade
-                };
-                entitiesToInsert.Add(entity);
-            }
+            //List<DeputiesDetailEntity> entitiesToInsert = new List<DeputiesDetailEntity>();
+            //foreach (DeputiesDetailResponse response in deputiesResponses)
+            //{
+            //    DeputiesDetailEntity entity = new DeputiesDetailEntity
+            //    {
+            //        IdEndpointDeputado = response.dados.id,
+            //        NomeCivil = response.dados.nomeCivil,
+            //        Cpf = response.dados.cpf,
+            //        Sexo = response.dados.sexo,
+            //        DataNascimento = response.dados.dataNascimento,
+            //        UfNascimento = response.dados.ufNascimento,
+            //        MunicipioNascimento = response.dados.municipioNascimento,
+            //        Escolaridade = response.dados.escolaridade
+            //    };
+            //    entitiesToInsert.Add(entity);
+            //}
 
-            // Realiza o Bulk Insert
-            await _deputyDetailDBRepository.BulkInsertDeputiesDetail(entitiesToInsert);
-            threads.Clear();
+            ////Realiza o Bulk Insert
+            //await _deputyDetailDBRepository.BulkInsertDeputiesDetail(entitiesToInsert);
+            //threads.Clear();
             #endregion
 
             #endregion
@@ -132,7 +132,7 @@ namespace Infrastructure.Services
             //        try
             //        {
             //            DeputiesDetailResponse response = await GetDeputiesDetailResponseByApiAsync(id, requestNumber);
-            //            deputiesResponses.Add(response);            
+            //            deputiesResponses.Add(response);
             //        }
             //        catch (Exception ex)
             //        {
@@ -140,7 +140,7 @@ namespace Infrastructure.Services
             //    });
 
             //    tasks.Add(task);
-            //    await Task.Delay(3);
+            //    await Task.Delay(200);
             //}
 
             //await Task.WhenAll(tasks);
@@ -167,7 +167,7 @@ namespace Infrastructure.Services
             #endregion
 
             #region BulkInsert
-            // Prepare a lista de entidades para o Bulk Insert
+            //Prepare a lista de entidades para o Bulk Insert
             //List<DeputiesDetailEntity> entitiesToInsert = new List<DeputiesDetailEntity>();
             //foreach (DeputiesDetailResponse response in deputiesResponses)
             //{
@@ -185,12 +185,77 @@ namespace Infrastructure.Services
             //    entitiesToInsert.Add(entity);
             //}
 
-            // Realize o Bulk Insert usando o Entity Framework Core
+            //Realize o Bulk Insert usando o Entity Framework Core
             //await _deputyDetailDBRepository.BulkInsertDeputiesDetail(entitiesToInsert);
             #endregion
 
             #endregion
 
+            #region Parallel
+            // Preparar uma lista de resultados das solicitações em paralelo
+            List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
+
+            // Realizar as solicitações em paralelo
+            Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, id =>
+            {
+                int currentRequestNumber = Interlocked.Increment(ref requestNumber);
+                try
+                {
+                    DeputiesDetailResponse response = GetDeputiesDetailResponseByApiAsync(id, currentRequestNumber).Result;
+                    lock (deputiesResponses)
+                    {
+                        deputiesResponses.Add(response);
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            });
+            #region SalvandoUmPorUm
+            //requestNumber = 0;
+            //foreach (DeputiesDetailResponse response in deputiesResponses)
+            //{
+            //    requestNumber++;
+            //    DeputiesDetailEntity entity = new DeputiesDetailEntity
+            //    {
+            //        IdEndpointDeputado = response.dados.id,
+            //        NomeCivil = response.dados.nomeCivil,
+            //        Cpf = response.dados.cpf,
+            //        Sexo = response.dados.sexo,
+            //        DataNascimento = response.dados.dataNascimento,
+            //        UfNascimento = response.dados.ufNascimento,
+            //        MunicipioNascimento = response.dados.municipioNascimento,
+            //        Escolaridade = response.dados.escolaridade
+            //    };
+
+            //await _deputyDetailDBRepository.InsertDeputiesDetailAsync(entity, requestNumber);      
+            //}
+            #endregion
+
+            #region BulkInsert
+            //Prepara a lista de entidades para o Bulk Insert
+            List<DeputiesDetailEntity> entitiesToInsert = new List<DeputiesDetailEntity>();
+            foreach (DeputiesDetailResponse response in deputiesResponses)
+            {
+                DeputiesDetailEntity entity = new DeputiesDetailEntity
+                {
+                    IdEndpointDeputado = response.dados.id,
+                    NomeCivil = response.dados.nomeCivil,
+                    Cpf = response.dados.cpf,
+                    Sexo = response.dados.sexo,
+                    DataNascimento = response.dados.dataNascimento,
+                    UfNascimento = response.dados.ufNascimento,
+                    MunicipioNascimento = response.dados.municipioNascimento,
+                    Escolaridade = response.dados.escolaridade
+                };
+                entitiesToInsert.Add(entity);
+            }
+
+            //Realiza o Bulk Insert
+            await _deputyDetailDBRepository.BulkInsertDeputiesDetail(entitiesToInsert);
+            #endregion
+
+            #endregion
 
             ConsoleExtension.WriteNotification($"{DateTime.Now}: Concluído!");
         }
