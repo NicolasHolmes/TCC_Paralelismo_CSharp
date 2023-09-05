@@ -44,7 +44,7 @@ namespace Infrastructure.Services
             return deputiesDetailResponse;
         }
 
-        private async Task SaveDeputiesResponsesOneByOneAsync(List<DeputiesDetailResponse> deputiesResponses)
+        public async Task SaveDeputiesResponsesOneByOneAsync(List<DeputiesDetailResponse> deputiesResponses)
         {
             int requestNumber = 0;
 
@@ -63,10 +63,11 @@ namespace Infrastructure.Services
                     Escolaridade = response.dados.escolaridade
                 };
 
+                // Realize o Insert de cada request
                 await _deputyDetailDBRepository.InsertDeputiesDetailAsync(entity, requestNumber);
             }
         }
-        private async Task BulkInsertDeputiesAsync(List<DeputiesDetailResponse> deputiesResponses)
+        public async Task BulkInsertDeputiesAsync(List<DeputiesDetailResponse> deputiesResponses)
         {
             //Prepara a lista de entidades para o Bulk Insert
             List<DeputiesDetailEntity> entitiesToInsert = new List<DeputiesDetailEntity>();
