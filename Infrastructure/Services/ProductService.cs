@@ -23,7 +23,7 @@ namespace Infrastructure.Services
             _productDBRepository = productDBRepository;
         }
 
-        public async Task<ProductResponse> GetProductsResponseByApiAsync()
+        public async Task<List<ProductResponse>> GetProductsResponseByApiAsync()
         {
 
             HttpResponseMessage response = await _productAPIRepository.GetProductsAsync();
@@ -37,40 +37,29 @@ namespace Infrastructure.Services
             string responseContent = await response.Content.ReadAsStringAsync();
 
             // Método para desserialização do JSON 
-            ProductResponse productsResponse = JsonConvert.DeserializeObject<ProductResponse>(responseContent);
+            List<ProductResponse> productsResponse = JsonConvert.DeserializeObject<List<ProductResponse>>(responseContent);
 
             // TODO: Validar o que chegou null para não dar erro na transferência dos dados
             return productsResponse;
         }
         public async Task ProcessAsync()
         {
-            List<Thread> threads = new List<Thread>();
-            List<ProductResponse> productsResponses = new List<ProductResponse>();
-
-            #region Thread
-            Thread thread = new Thread(() =>
-            {
-                productsResponses.Add(GetProductsResponseByApiAsync().Result);
-            });
-            thread.Start();
-            Task.Delay(100).Wait();
-            threads.Add(thread);
-            threads.ForEach(thread => thread.Join());
+            List<ProductResponse> productsResponses = await GetProductsResponseByApiAsync();
+            List<ProductEntity> entities = new List<ProductEntity>();
 
             foreach (ProductResponse response in productsResponses)
             {
                 ProductEntity entity = new ProductEntity
                 {
-                    IdEndpointProduct = response.Id,
-                    Name = response.Name,
-                    StockQuantity = response.StockQuantity,
+                    IdEndpointProduct = response.id,
+                    Name = response.name,
+                    StockQuantity = response.stockQuantity,
                 };
-
-                await _productDBRepository.InsertProductsBaseInfoAsync(entity);
+                entities.Add(entity);
             }
 
-            threads.Clear();
-            #endregion
+            await _productDBRepository.BulkInsertProductsDetail(entities);
+
             ConsoleExtension.WriteNotification($"{DateTime.Now}: Concluído!");
         }
     }

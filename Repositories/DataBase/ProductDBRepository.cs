@@ -24,7 +24,7 @@ namespace Repositories.DataBase
             var query = new StringBuilder();
 
             query.Append("INSERT INTO [TCC].[dbo].[ProdutosVindosDaAPI] ")
-                 .Append("([IdEndpointProduto], [Name], [StockQuantity], [CreationDate]) ")
+                 .Append("([IdEndpointProduct], [Name], [StockQuantity], [CreationDate]) ")
                  .Append("VALUES");
             query.Append($"('{productsEntity.IdEndpointProduct}',");
             query.Append($"'{productsEntity.Name}',");
@@ -43,7 +43,7 @@ namespace Repositories.DataBase
 
         public async Task<List<int>> SelectIdsOfProductsAsync()
         {
-            var query = ("SELECT [IdEndpointProduto] FROM [TCC].[dbo].[Produtos]");
+            var query = ("SELECT [IdEndpointProduct] FROM [TCC].[dbo].[ProdutosVindosDaAPI]");
 
             try
             {
@@ -53,6 +53,33 @@ namespace Repositories.DataBase
             catch (Exception ex)
             {
                 return null;
+            }
+        }
+
+        public async Task BulkInsertProductsDetail(IEnumerable<ProductEntity> entities)
+        {
+            _connection.Open();
+
+            using (var transaction = _connection.BeginTransaction())
+            {
+                try
+                {
+                    // Define a consulta SQL para o Bulk Insert
+                    string sql = "INSERT INTO [TCC].[dbo].[ProdutosVindosDaAPI] (IdEndpointProduct, Name, StockQuantity) " +
+                                 "VALUES (@IdEndpointProduct, @Name, @StockQuantity)";
+
+                    // Executa o Bulk Insert
+                    await _connection.ExecuteAsync(sql, entities, transaction: transaction);
+
+                    transaction.Commit();
+                    Console.WriteLine($"Todas as reponses foram salvas {DateTime.Now}");
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine($"Falha ao tentar salvar as responses, rollback feito {DateTime.Now}");
+                    throw;
+                }
             }
         }
 

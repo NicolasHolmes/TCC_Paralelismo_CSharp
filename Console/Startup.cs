@@ -54,6 +54,7 @@ namespace ExtractBot.Api
 
             #region ApiRepositories
             services.AddScoped<IParliamentAPIRepository, ParliamentAPIRepository>();
+            services.AddScoped<IProductAPIRepository, ProductAPIRepository>();
             #endregion
 
             #region SQLRepositories

@@ -10,5 +10,7 @@ namespace Repositories.DataBase.Interfaces
         public Task InsertProductsBaseInfoAsync(ProductEntity productiesEntity);
 
         public Task<List<int>> SelectIdsOfProductsAsync();
+
+        public Task BulkInsertProductsDetail(IEnumerable<ProductEntity> productEntity);
     }
 }

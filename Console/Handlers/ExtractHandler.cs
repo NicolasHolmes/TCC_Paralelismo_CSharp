@@ -19,13 +19,16 @@ namespace ExtractBot.Api.Handlers
 
         private IDeputyService _deputyService;
         private IDeputyDetailService _deputyDetailService;
-
+        private IProductService _productService;
+        private IProductDetailService _productDetailService;
         public ExtractHandler()
         {
             _startup = new Startup();
 
             _deputyService = _startup.Provider.GetRequiredService<IDeputyService>();
             _deputyDetailService = _startup.Provider.GetRequiredService<IDeputyDetailService>();
+            _productService = _startup.Provider.GetRequiredService<IProductService>();
+            _productDetailService = _startup.Provider.GetRequiredService<IProductDetailService>();
 
         }
 
@@ -54,6 +57,14 @@ namespace ExtractBot.Api.Handlers
                 else if (ExtractCommand.DETALHESDEPUTADOS.Equals(command))
                 {
                     _extractService = _deputyDetailService;
+                }
+                else if (ExtractCommand.PRODUTOS.Equals(command))
+                {
+                    _extractService = _productService;
+                }
+                else if (ExtractCommand.DETALHESPRODUTOS.Equals(command))
+                {
+                    _extractService = _productDetailService;
                 }
                 else
                 {
