@@ -7,8 +7,8 @@ namespace Models.ExternalEntities
         public string Name { get; set; }
         public string Description { get; set; }
         public string Price { get; set; }
-        public DateTime? MaturityDate { get; set; }
-        public int Barcode { get; set; }
+        public DateTime? ExpirationDate { get; set; }
+        public int BarCode { get; set; }
         public int StockQuantity { get; set; }
     }
 }

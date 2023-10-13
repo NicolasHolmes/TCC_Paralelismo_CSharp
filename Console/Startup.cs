@@ -45,6 +45,8 @@ namespace ExtractBot.Api
             #region ExtractServices
             services.AddScoped<IDeputyService, DeputyService>();
             services.AddScoped<IDeputyDetailService, DeputyDetailService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductDetailService, ProductDetailService>();
             #endregion
 
             #region Services
@@ -57,6 +59,8 @@ namespace ExtractBot.Api
             #region SQLRepositories
             services.AddScoped<IDeputyDBRepository, DeputyDBRepository>();
             services.AddScoped<IDeputyDetailDBRepository, DeputyDetailDBRepository>();
+            services.AddScoped<IProductDBRepository, ProductDBRepository>();
+            services.AddScoped<IProductDetailDBRepository, ProductDetailDBRepository>();
             #endregion
 
             provider = services.BuildServiceProvider();

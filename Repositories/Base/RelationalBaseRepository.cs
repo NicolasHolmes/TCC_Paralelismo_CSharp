@@ -19,7 +19,7 @@ namespace Repositories.Base
 
         public virtual async Task<int?> AddAsync(Entity entity)
         {
-            entity.DataCriacao = DateTime.Now;
+            entity.CreationDate = DateTime.Now;
             return await _connection.InsertAsync(entity);
         }
 
@@ -36,19 +36,6 @@ namespace Repositories.Base
         public virtual async Task<IEnumerable<Entity>> GetWhereAsync(object conditions)
         {
             return await _connection.GetListAsync<Entity>(conditions);
-        }
-
-        public virtual async Task<bool> UpdateAsync(Entity entity)
-        {
-            entity.DataAtualizacao = DateTime.Now;
-            return await _connection.UpdateAsync(entity) > 0;
-        }
-
-        public async Task<bool> SoftDeleteByIdAsync(int id)
-        {
-            Entity entity = await GetByIdAsync(id);
-            entity.Deletado = true;
-            return await _connection.UpdateAsync(entity) > 0;
         }
     }
 }

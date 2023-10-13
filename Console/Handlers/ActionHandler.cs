@@ -41,7 +41,9 @@ namespace ExtractBot.Api.Handlers
                     "Help   - Menu de ajuda\n\t" +
                     "Extract   - Extrair\n\t" +
                     "   Deputados(endpoint que trás informações rasas de todos os deputados de uma vez)\n\t" +
+                    "   Produtos(endpoint que trás informações rasas de todos os produtos de uma vez)\n\t" +
                     "   DetalhesDeputados(endpoint que trás mais informações sobre cada deputado)\n\t" +
+                    "   DetalhesProdutos(endpoint que trás mais informações sobre cada produto)\n\t" +
                     "Time   - Mostra a quanto tempo o Bot está rodando";
                 
                 ConsoleExtension.WriteSuccess(helpText);
