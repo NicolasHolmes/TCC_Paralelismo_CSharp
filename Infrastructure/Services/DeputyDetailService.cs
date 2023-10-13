@@ -102,6 +102,8 @@ namespace Infrastructure.Services
             #region Thread
             //List<Thread> threads = new List<Thread>();
             //List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
+            //object lockObject = new object(); // Objeto de trava
+
 
             //foreach (int id in ids)
             //{
@@ -110,7 +112,12 @@ namespace Infrastructure.Services
             //    {
             //        try
             //        {
-            //            deputiesResponses.Add(GetDeputiesDetailResponseByApiAsync(id, requestNumber).Result);
+            //            DeputiesDetailResponse response = GetDeputiesDetailResponseByApiAsync(id, requestNumber).Result;
+
+            //            lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
+            //            {
+            //                deputiesResponses.Add(response);
+            //            }
             //        }
             //        catch (Exception ex)
             //        {
@@ -136,6 +143,8 @@ namespace Infrastructure.Services
             #region Task
             //List<Task> tasks = new List<Task>();
             //List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
+            //object lockObject = new object(); // Objeto de bloqueio
+
             //foreach (int id in ids)
             //{
             //    requestNumber++;
@@ -145,7 +154,12 @@ namespace Infrastructure.Services
             //        try
             //        {
             //            DeputiesDetailResponse response = await GetDeputiesDetailResponseByApiAsync(id, requestNumber);
-            //            deputiesResponses.Add(response);
+
+            //            // Bloqueio para garantir acesso exclusivo à lista
+            //            lock (lockObject)
+            //            {
+            //                deputiesResponses.Add(response);
+            //            }
             //        }
             //        catch (Exception ex)
             //        {
@@ -163,59 +177,29 @@ namespace Infrastructure.Services
             #endregion
 
             #region BulkInsert
-            // await BulkInsertDeputiesAsync(deputiesResponses);
+             //await BulkInsertDeputiesAsync(deputiesResponses);
             #endregion
 
             #endregion
 
             #region Parallel
-            // Preparar uma lista de resultados das solicitações em paralelo
-            //List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
-
-            // Realizar as solicitações em paralelo
-            //Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, id =>
-            //{
-            //    int currentRequestNumber = Interlocked.Increment(ref requestNumber);
-            //    try
-            //    {
-            //        DeputiesDetailResponse response = GetDeputiesDetailResponseByApiAsync(id, currentRequestNumber).Result;
-            //        lock (deputiesResponses)
-            //        {
-            //            deputiesResponses.Add(response);
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //    }
-            //});
-
-            #region SalvandoUmPorUm
-            //await SaveDeputiesResponsesOneByOneAsync(deputiesResponses);
-            #endregion
-
-            #region BulkInsert
-            //await BulkInsertDeputiesAsync(deputiesResponses);
-            #endregion
-
-            #endregion
-
-            #region Sequential
-
             List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
 
-            foreach (int id in ids)
+            Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, id =>
             {
-                requestNumber++;
-
+                int currentRequestNumber = Interlocked.Increment(ref requestNumber);
                 try
                 {
-                    DeputiesDetailResponse response = await GetDeputiesDetailResponseByApiAsync(id, requestNumber);
-                    deputiesResponses.Add(response);
+                    DeputiesDetailResponse response = GetDeputiesDetailResponseByApiAsync(id, currentRequestNumber).Result;
+                    lock (deputiesResponses) // Trava
+                    {
+                        deputiesResponses.Add(response);
+                    }
                 }
                 catch (Exception ex)
                 {
                 }
-            }
+            });
 
             #region SalvandoUmPorUm
             //await SaveDeputiesResponsesOneByOneAsync(deputiesResponses);
@@ -223,6 +207,34 @@ namespace Infrastructure.Services
 
             #region BulkInsert
             await BulkInsertDeputiesAsync(deputiesResponses);
+            #endregion
+
+            #endregion
+
+            #region Sequential
+
+            //List<DeputiesDetailResponse> deputiesResponses = new List<DeputiesDetailResponse>();
+
+            //foreach (int id in ids)
+            //{
+            //    requestNumber++;
+
+            //    try
+            //    {
+            //        DeputiesDetailResponse response = await GetDeputiesDetailResponseByApiAsync(id, requestNumber);
+            //        deputiesResponses.Add(response);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //    }
+            //}
+
+            #region SalvandoUmPorUm
+            //await SaveDeputiesResponsesOneByOneAsync(deputiesResponses);
+            #endregion
+
+            #region BulkInsert
+            //await BulkInsertDeputiesAsync(deputiesResponses);
             #endregion
 
             #endregion
