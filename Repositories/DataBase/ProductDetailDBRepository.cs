@@ -52,7 +52,7 @@ namespace Repositories.DataBase
                 try
                 {
                     // Define a consulta SQL para o Bulk Insert
-                    string sql = "INSERT INTO [TCC].[dbo].[ProdutosDetalhes] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, CreationDate) " +
+                    string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, CreationDate) " +
                                  "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @CreationDate)";
 
                     // Executa o Bulk Insert
