@@ -166,7 +166,6 @@ namespace Infrastructure.Services
                 });
 
                 tasks.Add(task);
-                await Task.Delay(200);
             }
 
             await Task.WhenAll(tasks);
