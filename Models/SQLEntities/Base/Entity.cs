@@ -14,7 +14,7 @@ namespace Models.SQLEntities.Base
         [Key]
         public int Id { get; set; }
         [IgnoreUpdate]
-        public DateTime CreationDate { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         public BaseEntity BuildCreated()
         {

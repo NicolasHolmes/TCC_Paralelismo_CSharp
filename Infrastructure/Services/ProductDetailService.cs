@@ -39,7 +39,7 @@ namespace Infrastructure.Services
 
             // Método para desserialização do JSON 
             ProductDetailResponse productsDetailResponse = JsonConvert.DeserializeObject<ProductDetailResponse>(responseContent);
-
+            productsDetailResponse.CreationDate = DateTime.Now;
             // TODO: Validar o que chegou null para não dar erro na transferência dos dados
             return productsDetailResponse;
         }
@@ -60,7 +60,7 @@ namespace Infrastructure.Services
                     ExpirationDate = response.ExpirationDate,
                     BarCode = response.BarCode,
                     StockQuantity = response.StockQuantity,
-                    CreationDate = DateTime.Now,
+                    CreationDate = response.CreationDate
                 };
 
                 // Realize o Insert de cada request
@@ -83,7 +83,7 @@ namespace Infrastructure.Services
                     ExpirationDate = response.ExpirationDate,
                     BarCode = response.BarCode,
                     StockQuantity = response.StockQuantity,
-                    CreationDate = DateTime.Now,
+                    CreationDate = response.CreationDate
                 };
                 entitiesToInsert.Add(entity);
             }

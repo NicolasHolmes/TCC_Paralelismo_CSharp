@@ -10,5 +10,6 @@ namespace Models.ExternalEntities
         public DateTime? ExpirationDate { get; set; }
         public long BarCode { get; set; }
         public int StockQuantity { get; set; }
+        public DateTime? CreationDate { get; set; }
     }
 }
