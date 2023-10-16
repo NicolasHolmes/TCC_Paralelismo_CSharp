@@ -100,63 +100,21 @@ namespace Infrastructure.Services
             List<int> ids = await _productDBRepository.SelectIdsOfProductsAsync();
 
             #region Thread
-            List<Thread> threads = new List<Thread>();
-            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
-            object lockObject = new object(); // Objeto de trava
-
-
-            foreach (int id in ids)
-            {
-                requestNumber++;
-                Thread thread = new Thread(() =>
-                {
-                    try
-                    {
-                        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber).Result;
-
-                        lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
-                        {
-                            productsResponses.Add(response);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                });
-                thread.Start();
-                Task.Delay(250).Wait();
-                threads.Add(thread);
-            }
-            threads.ForEach(thread => thread.Join());
-
-            #region SalvandoUmPorUm
-            //await SaveProductsResponsesOneByOneAsync(productsResponses);
-            #endregion
-
-            #region BulkInsert
-            await BulkInsertProductsDetailsAsync(productsResponses);
-            #endregion
-
-            //threads.Clear();
-            #endregion
-
-            #region Task
-            //List<Task> tasks = new List<Task>();
+            //List<Thread> threads = new List<Thread>();
             //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
-            //object lockObject = new object(); // Objeto de bloqueio
+            //object lockObject = new object(); // Objeto de trava
+
 
             //foreach (int id in ids)
             //{
             //    requestNumber++;
-
-            //    Task task = Task.Run(async () =>
+            //    Thread thread = new Thread(() =>
             //    {
             //        try
             //        {
-            //            ProductDetailResponse response = await GetProductDetailResponseByApiAsync(id, requestNumber);
+            //            ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber).Result;
 
-            //            // Bloqueio para garantir acesso exclusivo à lista
-            //            lock (lockObject)
+            //            lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
             //            {
             //                productsResponses.Add(response);
             //            }
@@ -165,12 +123,10 @@ namespace Infrastructure.Services
             //        {
             //        }
             //    });
-
-            //    tasks.Add(task);
-            //    await Task.Delay(200);
+            //    thread.Start();
+            //    threads.Add(thread);
             //}
-
-            //await Task.WhenAll(tasks);
+            //threads.ForEach(thread => thread.Join());
 
             #region SalvandoUmPorUm
             //await SaveProductsResponsesOneByOneAsync(productsResponses);
@@ -178,6 +134,49 @@ namespace Infrastructure.Services
 
             #region BulkInsert
             //await BulkInsertProductsDetailsAsync(productsResponses);
+            #endregion
+
+            //threads.Clear();
+            #endregion
+
+            #region Task
+            List<Task> tasks = new List<Task>();
+            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
+            object lockObject = new object(); // Objeto de bloqueio
+
+            foreach (int id in ids)
+            {
+                requestNumber++;
+
+                Task task = Task.Run(async () =>
+                {
+                    try
+                    {
+                        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+
+                        // Bloqueio para garantir acesso exclusivo à lista
+                        lock (lockObject)
+                        {
+                            productsResponses.Add(response);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                });
+
+                tasks.Add(task);
+                await Task.Delay(200);
+            }
+
+            await Task.WhenAll(tasks);
+
+            #region SalvandoUmPorUm
+            //await SaveProductsResponsesOneByOneAsync(productsResponses);
+            #endregion
+
+            #region BulkInsert
+            await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
 
             #endregion
@@ -221,7 +220,7 @@ namespace Infrastructure.Services
 
             //    try
             //    {
-            //        ProductDetailResponse response = await GetProductDetailResponseByApiAsync(id, requestNumber);
+            //        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
             //        productsResponses.Add(response);
             //    }
             //    catch (Exception ex)
