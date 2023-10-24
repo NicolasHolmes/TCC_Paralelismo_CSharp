@@ -2,9 +2,7 @@
 {
     public static class ExtractCommand
     {
-        public const string DEPUTADOS = "DEPUTADOS";
         public const string PRODUTOS = "PRODUTOS";
-        public const string DETALHESDEPUTADOS = "DETALHESDEPUTADOS";
         public const string DETALHESPRODUTOS = "DETALHESPRODUTOS";
     }
 }

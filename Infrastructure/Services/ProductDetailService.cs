@@ -140,42 +140,51 @@ namespace Infrastructure.Services
             #endregion
 
             #region Task
-            List<Task> tasks = new List<Task>();
-            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
-            object lockObject = new object(); // Objeto de bloqueio
+            //int maxParallelism = 16; // Defina o número máximo de tarefas paralelas que você deseja
 
-            foreach (int id in ids)
-            {
-                requestNumber++;
+            //List<Task> tasks = new List<Task>();
+            //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
+            //object lockObject = new object(); // Objeto de bloqueio
 
-                Task task = Task.Run(async () =>
-                {
-                    try
-                    {
-                        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
 
-                        // Bloqueio para garantir acesso exclusivo à lista
-                        lock (lockObject)
-                        {
-                            productsResponses.Add(response);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                });
+            //var semaphore = new SemaphoreSlim(maxParallelism);
+            //foreach (int id in ids)
+            //{
+            //    await semaphore.WaitAsync(); // Aguarde para entrar na seção crítica (limitado pelo maxParallelism)
+            //    requestNumber++;
 
-                tasks.Add(task);
-            }
+            //    Task task = Task.Run(async () =>
+            //    {
+            //        try
+            //        {
+            //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
 
-            await Task.WhenAll(tasks);
+            //            // Bloqueio para garantir acesso exclusivo à lista
+            //            lock (lockObject)
+            //            {
+            //                productsResponses.Add(response);
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //        }
+            //        finally
+            //        {
+            //            semaphore.Release(); // Libere a seção crítica
+            //        }
+            //    });
+
+            //    tasks.Add(task);
+            //}
+
+            //await Task.WhenAll(tasks);
 
             #region SalvandoUmPorUm
             //await SaveProductsResponsesOneByOneAsync(productsResponses);
             #endregion
 
             #region BulkInsert
-            await BulkInsertProductsDetailsAsync(productsResponses);
+            //await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
 
             #endregion
@@ -211,28 +220,28 @@ namespace Infrastructure.Services
 
             #region Sequential
 
-            //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
+            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
 
-            //foreach (int id in ids)
-            //{
-            //    requestNumber++;
+            foreach (int id in ids)
+            {
+                requestNumber++;
 
-            //    try
-            //    {
-            //        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
-            //        productsResponses.Add(response);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //    }
-            //}
+                try
+                {
+                    ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+                    productsResponses.Add(response);
+                }
+                catch (Exception ex)
+                {
+                }
+            }
 
             #region SalvandoUmPorUm
             //await SaveProductsResponsesOneByOneAsync(productsResponses);
             #endregion
 
             #region BulkInsert
-            //await BulkInsertProductsDetailsAsync(productsResponses);
+            await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
 
             #endregion

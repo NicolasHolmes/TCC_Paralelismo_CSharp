@@ -17,16 +17,12 @@ namespace ExtractBot.Api.Handlers
         private Startup _startup;
         private IExtractService _extractService;
 
-        private IDeputyService _deputyService;
-        private IDeputyDetailService _deputyDetailService;
         private IProductService _productService;
         private IProductDetailService _productDetailService;
         public ExtractHandler()
         {
             _startup = new Startup();
 
-            _deputyService = _startup.Provider.GetRequiredService<IDeputyService>();
-            _deputyDetailService = _startup.Provider.GetRequiredService<IDeputyDetailService>();
             _productService = _startup.Provider.GetRequiredService<IProductService>();
             _productDetailService = _startup.Provider.GetRequiredService<IProductDetailService>();
 
@@ -50,15 +46,7 @@ namespace ExtractBot.Api.Handlers
             bool tryAgain = false;
             do
             {
-                if (ExtractCommand.DEPUTADOS.Equals(command))
-                {
-                    _extractService = _deputyService;
-                }
-                else if (ExtractCommand.DETALHESDEPUTADOS.Equals(command))
-                {
-                    _extractService = _deputyDetailService;
-                }
-                else if (ExtractCommand.PRODUTOS.Equals(command))
+                if (ExtractCommand.PRODUTOS.Equals(command))
                 {
                     _extractService = _productService;
                 }
