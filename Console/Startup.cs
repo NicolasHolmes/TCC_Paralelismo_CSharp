@@ -43,8 +43,6 @@ namespace ExtractBot.Api
             services.AddSingleton(_configuration);
 
             #region ExtractServices
-            services.AddScoped<IDeputyService, DeputyService>();
-            services.AddScoped<IDeputyDetailService, DeputyDetailService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IProductDetailService, ProductDetailService>();
             #endregion
@@ -53,13 +51,10 @@ namespace ExtractBot.Api
             #endregion
 
             #region ApiRepositories
-            services.AddScoped<IParliamentAPIRepository, ParliamentAPIRepository>();
             services.AddScoped<IProductAPIRepository, ProductAPIRepository>();
             #endregion
 
             #region SQLRepositories
-            services.AddScoped<IDeputyDBRepository, DeputyDBRepository>();
-            services.AddScoped<IDeputyDetailDBRepository, DeputyDetailDBRepository>();
             services.AddScoped<IProductDBRepository, ProductDBRepository>();
             services.AddScoped<IProductDetailDBRepository, ProductDetailDBRepository>();
             #endregion
