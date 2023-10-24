@@ -39,7 +39,7 @@ namespace ExtractBot.Api.Handlers
             if (command == null)
             {
                 ConsoleExtension.WriteLog("Qual endpoint deseja extrair?");
-                ConsoleExtension.WriteLog("\t Lista de Deputados ou Detalhes dos Deputados");
+                ConsoleExtension.WriteLog("\t Lista de Produtos ou Detalhes dos Produtos");
                 commands = Console.ReadLine().ToCommands();
             }
             bool nextHandler = false;
@@ -57,7 +57,7 @@ namespace ExtractBot.Api.Handlers
                 else
                 {
                     ConsoleExtension.WriteError("Comando não reconhecido!");
-                    ConsoleExtension.WriteLog("\t Lista de Deputados ou Detalhes dos Deputados?");
+                    ConsoleExtension.WriteLog("\t Lista de Produtos ou Detalhes dos Produtos?");
                     commands = Console.ReadLine().ToCommands();
                     tryAgain = true;
                 }
