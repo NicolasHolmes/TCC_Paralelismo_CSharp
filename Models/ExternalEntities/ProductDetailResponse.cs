@@ -11,5 +11,7 @@ namespace Models.ExternalEntities
         public long BarCode { get; set; }
         public int StockQuantity { get; set; }
         public DateTime? CreationDate { get; set; }
+        public string TypeOfExtraction { get; set; }
+
     }
 }

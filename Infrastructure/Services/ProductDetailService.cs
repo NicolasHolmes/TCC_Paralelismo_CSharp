@@ -83,6 +83,7 @@ namespace Infrastructure.Services
                     ExpirationDate = response.ExpirationDate,
                     BarCode = response.BarCode,
                     StockQuantity = response.StockQuantity,
+                    TypeOfExtraction = response.TypeOfExtraction,
                     CreationDate = response.CreationDate
                 };
                 entitiesToInsert.Add(entity);
@@ -113,6 +114,7 @@ namespace Infrastructure.Services
             //        try
             //        {
             //            ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber).Result;
+            //            response.TypeOfExtraction = "Thread";
 
             //            lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
             //            {
@@ -158,6 +160,7 @@ namespace Infrastructure.Services
             //        try
             //        {
             //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+            //            response.TypeOfExtraction = "Task";
 
             //            // Bloqueio para garantir acesso exclusivo à lista
             //            lock (lockObject)
@@ -198,6 +201,7 @@ namespace Infrastructure.Services
             //    try
             //    {
             //        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, currentRequestNumber).Result;
+            //        response.TypeOfExtraction = "Parallel";
             //        lock (productsResponses) // Trava
             //        {
             //            productsResponses.Add(response);
@@ -219,7 +223,6 @@ namespace Infrastructure.Services
             #endregion
 
             #region Sequential
-
             List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
 
             foreach (int id in ids)
@@ -229,6 +232,7 @@ namespace Infrastructure.Services
                 try
                 {
                     ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+                    response.TypeOfExtraction = "Sequential";
                     productsResponses.Add(response);
                 }
                 catch (Exception ex)

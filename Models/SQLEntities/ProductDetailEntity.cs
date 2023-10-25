@@ -14,5 +14,6 @@ namespace Models.SQLEntities
         public DateTime? ExpirationDate { get; set; }
         public long BarCode { get; set; }
         public int StockQuantity { get; set; }
+        public string TypeOfExtraction { get; set; }
     }
 }

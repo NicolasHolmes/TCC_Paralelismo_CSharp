@@ -22,7 +22,7 @@ namespace Repositories.DataBase
             var query = new StringBuilder();
 
             query.Append("INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ")
-                 .Append("([IdEndpointProduct], [Name], [Description], [Price], [ExpirationDate], [BarCode], [StockQuantity], [CreationDate]) ")
+                 .Append("([IdEndpointProduct], [Name], [Description], [Price], [ExpirationDate], [BarCode], [StockQuantity], [TypeOfExtraction], [CreationDate]) ")
                  .Append("VALUES");
             query.Append($"({productEntity.IdEndpointProduct},");
             query.Append($"'{productEntity.Name}',");
@@ -31,6 +31,7 @@ namespace Repositories.DataBase
             query.Append($"'{productEntity.ExpirationDate}',");
             query.Append($"'{productEntity.BarCode}',");
             query.Append($"'{productEntity.StockQuantity}',");
+            query.Append($"'{productEntity.TypeOfExtraction}',");
             query.Append($"GETDATE())");
 
             try
@@ -52,8 +53,8 @@ namespace Repositories.DataBase
                 try
                 {
                     // Define a consulta SQL para o Bulk Insert
-                    string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, CreationDate) " +
-                                 "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @CreationDate)";
+                    string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, TypeOfExtraction, CreationDate) " +
+                                 "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @TypeOfExtraction, @CreationDate)";
 
                     // Executa o Bulk Insert
                     await _connection.ExecuteAsync(sql, entities, transaction: transaction);
@@ -68,6 +69,7 @@ namespace Repositories.DataBase
                     throw;
                 }
             }
+            _connection.Close();
         }
     }
 }
