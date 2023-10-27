@@ -15,5 +15,7 @@ namespace Models.SQLEntities
         public long BarCode { get; set; }
         public int StockQuantity { get; set; }
         public string TypeOfExtraction { get; set; }
+        public int RequestsQuantity { get; set; }
+        public int TimesItRan { get; set; }
     }
 }

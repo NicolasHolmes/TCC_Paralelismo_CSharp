@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using System.Data.SqlClient;
-using System.Runtime.Intrinsics.X86;
 
 namespace Tests
 {
@@ -80,20 +79,22 @@ namespace Tests
                             IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'DetalhesProdutosVindosDaAPI' AND type = 'U')
                             BEGIN
                                 CREATE TABLE [dbo].[DetalhesProdutosVindosDaAPI](
-	                                [Id] [int] IDENTITY(1,1) NOT NULL,
-	                                [IdEndpointProduct] [int] NOT NULL,
-	                                [Name] [varchar](50) NOT NULL,
-	                                [Description] [varchar](50) NULL,
-	                                [Price] [decimal](4, 2) NOT NULL,
-	                                [ExpirationDate] [date] NULL,
-	                                [BarCode] [bigint] NOT NULL,
-	                                [StockQuantity] [int] NOT NULL,
-	                                [CreationDate] [datetime] NOT NULL,
-	                                [TypeOfExtraction] [varchar](50) NOT NULL,
-	                                PRIMARY KEY CLUSTERED 
-	                                (
-		                                [Id] ASC
-	                                )
+                                    [Id] [int] IDENTITY(1,1) NOT NULL,
+                                    [IdEndpointProduct] [int] NOT NULL,
+                                    [Name] [varchar](50) NOT NULL,
+                                    [Description] [varchar](50) NULL,
+                                    [Price] [decimal](4, 2) NOT NULL,
+                                    [ExpirationDate] [date] NULL,
+                                    [BarCode] [bigint] NOT NULL,
+                                    [StockQuantity] [int] NOT NULL,
+                                    [CreationDate] [datetime] NOT NULL,
+                                    [TypeOfExtraction] [varchar](50) NOT NULL,
+                                    [RequestsQuantity] [int] NOT NULL,
+                                    [TimesItRan] [int] NOT NULL DEFAULT(0),
+                                    PRIMARY KEY CLUSTERED 
+                                    (
+                                        [Id] ASC
+                                    )
                                 ) ON [PRIMARY];
                             END";
                         command.ExecuteNonQuery();
@@ -131,8 +132,8 @@ namespace Tests
                 {
                     // Populando a tabela Produtos
                     command.CommandText = @"
-                        DECLARE @BatchSize INT = 1000; --Número de linhas por lote
-                        DECLARE @TotalRows INT = 10000; --Total de linhas a serem inseridas
+                        DECLARE @BatchSize INT = 10; --Número de linhas por lote
+                        DECLARE @TotalRows INT = 10; --Total de linhas a serem inseridas
                         DECLARE @CurrentRow INT = 1;
 
                         BEGIN TRANSACTION; -- Iniciar a primeira transação
@@ -159,7 +160,7 @@ namespace Tests
                     ";
                     command.ExecuteNonQuery();
 
-                    // Populando a tabela DetalhesProdutos com os 100.000 registros
+                    // Populando a tabela DetalhesProdutos com os registros
                     command.CommandText = @"
                         -- Habilitar a inserção em massa
                         SET NOCOUNT ON;
@@ -169,7 +170,7 @@ namespace Tests
                         DECLARE @MinDate DATE = '2023-01-01';
                         DECLARE @MaxDate DATE = '2100-12-31';
                         -- Loop para inserir as linhas
-                        WHILE @Counter <= 10000
+                        WHILE @Counter <= 10
                         BEGIN
                             -- Gerar dados aleatórios
                             DECLARE @RandomName VARCHAR(50) = 'Produto ' + CAST(@Counter AS VARCHAR(10));

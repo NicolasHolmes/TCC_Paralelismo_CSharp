@@ -12,7 +12,7 @@ namespace Repositories.API
         {
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://localhost:5001/api/Products");
+                client.BaseAddress = new Uri("https://localhost:5001/api/Products/GetProducts");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 HttpResponseMessage httpResponseMessage = await client.GetAsync("");
@@ -26,6 +26,19 @@ namespace Repositories.API
             using (var client = new HttpClient())
             {
                 client.BaseAddress = new Uri($"https://localhost:5001/api/Products/{id}");
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+                HttpResponseMessage httpResponseMessage = await client.GetAsync("");
+
+                return httpResponseMessage;
+            }
+        }
+
+        public async Task<HttpResponseMessage> GetRequestsQuantityAsync()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri($"https://localhost:5001/api/Products/GetRequestsQuantity");
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
                 HttpResponseMessage httpResponseMessage = await client.GetAsync("");

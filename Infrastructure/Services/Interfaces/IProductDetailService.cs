@@ -7,8 +7,8 @@ namespace Infrastructure.Services.Interfaces
 {
     public interface IProductDetailService : IExtractService
     {
-        public Task<ProductDetailResponse> GetProductsDetailsResponseByApiAsync(int id, int requestNumber);
-        public Task SaveProductsResponsesOneByOneAsync(List<ProductDetailResponse> deputiesResponses);
-        public Task BulkInsertProductsDetailsAsync(List<ProductDetailResponse> deputiesResponses);
+        public Task<ProductDetailResponse> GetProductsDetailsResponseByApiAsync(int id, int requestNumber, int requestsQuantity, int timesItRan);
+        public Task<int> GetRequestsQuantity();
+        public Task BulkInsertProductsDetailsAsync(List<ProductDetailResponse> productsResponses);
     }
 }

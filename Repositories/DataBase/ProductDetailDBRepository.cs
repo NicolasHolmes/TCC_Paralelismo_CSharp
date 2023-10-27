@@ -16,32 +16,20 @@ namespace Repositories.DataBase
         {
             _connection = connection;
         }
-
-        public async Task InsertProductsDetailAsync(ProductDetailEntity productEntity, int requestNumber)
+        public async Task<int> SelectTimesItRan(int requestsQuantity)
         {
             var query = new StringBuilder();
 
-            query.Append("INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ")
-                 .Append("([IdEndpointProduct], [Name], [Description], [Price], [ExpirationDate], [BarCode], [StockQuantity], [TypeOfExtraction], [CreationDate]) ")
-                 .Append("VALUES");
-            query.Append($"({productEntity.IdEndpointProduct},");
-            query.Append($"'{productEntity.Name}',");
-            query.Append($"'{productEntity.Description}',");
-            query.Append($"'{productEntity.Price}',");
-            query.Append($"'{productEntity.ExpirationDate}',");
-            query.Append($"'{productEntity.BarCode}',");
-            query.Append($"'{productEntity.StockQuantity}',");
-            query.Append($"'{productEntity.TypeOfExtraction}',");
-            query.Append($"GETDATE())");
+            query.Append("SELECT MAX([TimesItRan]) FROM [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ");
+            query.Append("WHERE [RequestsQuantity] = @RequestsQuantity");
 
             try
             {
-                await _connection.QueryAsync<ProductDetailEntity>(query.ToString());
-                Console.WriteLine($"Response da request {requestNumber} salva {DateTime.Now}");
+                return await _connection.ExecuteScalarAsync<int>(query.ToString(), new { RequestsQuantity = requestsQuantity });
             }
             catch (Exception ex)
             {
-
+                throw;
             }
         }
         public async Task BulkInsertProductsDetail(IEnumerable<ProductDetailEntity> entities)
@@ -53,8 +41,8 @@ namespace Repositories.DataBase
                 try
                 {
                     // Define a consulta SQL para o Bulk Insert
-                    string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, TypeOfExtraction, CreationDate) " +
-                                 "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @TypeOfExtraction, @CreationDate)";
+                    string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, TypeOfExtraction, RequestsQuantity, TimesItRan, CreationDate) " +
+                                             "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @TypeOfExtraction, @RequestsQuantity, @TimesItRan, @CreationDate)";
 
                     // Executa o Bulk Insert
                     await _connection.ExecuteAsync(sql, entities, transaction: transaction);

@@ -25,7 +25,7 @@ namespace Infrastructure.Services
             _productDetailDBRepository = productDetailDBRepository;
         }
 
-        public async Task<ProductDetailResponse> GetProductsDetailsResponseByApiAsync(int id, int requestNumber)
+        public async Task<ProductDetailResponse> GetProductsDetailsResponseByApiAsync(int id, int requestNumber, int requestsQuantity, int timesItRan)
         {
             HttpResponseMessage response = await _productAPIRepository.GetProductDetailsAsync(id);
             ConsoleExtension.WriteLog($"Request {requestNumber} feita {DateTime.Now}");
@@ -40,33 +40,27 @@ namespace Infrastructure.Services
             // Método para desserialização do JSON 
             ProductDetailResponse productsDetailResponse = JsonConvert.DeserializeObject<ProductDetailResponse>(responseContent);
             productsDetailResponse.CreationDate = DateTime.Now;
-            // TODO: Validar o que chegou null para não dar erro na transferência dos dados
+            productsDetailResponse.RequestsQuantity = requestsQuantity;
+            productsDetailResponse.TimesItRan = timesItRan + 1;
+
             return productsDetailResponse;
         }
 
-        public async Task SaveProductsResponsesOneByOneAsync(List<ProductDetailResponse> productsResponses)
+        public async Task<int> GetRequestsQuantity()
         {
-            int requestNumber = 0;
-
-            foreach (ProductDetailResponse response in productsResponses)
+            HttpResponseMessage response = await _productAPIRepository.GetRequestsQuantityAsync();
+            // Método para desserialização do JSON 
+            if (!response.IsSuccessStatusCode)
             {
-                requestNumber++;
-                ProductDetailEntity entity = new ProductDetailEntity
-                {
-                    IdEndpointProduct = response.Id,
-                    Name = response.Name,
-                    Description = response.Description,
-                    Price = response.Price,
-                    ExpirationDate = response.ExpirationDate,
-                    BarCode = response.BarCode,
-                    StockQuantity = response.StockQuantity,
-                    CreationDate = response.CreationDate
-                };
-
-                // Realize o Insert de cada request
-                await _productDetailDBRepository.InsertProductsDetailAsync(entity, requestNumber);
+                // Lida com a resposta não bem-sucedida, se necessário
+                throw new Exception($"Request failed with status code {response.StatusCode}");
             }
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            int requestsQuantity = JsonConvert.DeserializeObject<int>(responseContent);
+            return requestsQuantity;
         }
+
         public async Task BulkInsertProductsDetailsAsync(List<ProductDetailResponse> productsResponses)
         {
             //Prepara a lista de entidades para o Bulk Insert
@@ -84,6 +78,8 @@ namespace Infrastructure.Services
                     BarCode = response.BarCode,
                     StockQuantity = response.StockQuantity,
                     TypeOfExtraction = response.TypeOfExtraction,
+                    RequestsQuantity = response.RequestsQuantity,
+                    TimesItRan = response.TimesItRan,
                     CreationDate = response.CreationDate
                 };
                 entitiesToInsert.Add(entity);
@@ -98,7 +94,11 @@ namespace Infrastructure.Services
 
             int requestNumber = 0;
 
+            int requestsQuantity = await GetRequestsQuantity();
+
             List<int> ids = await _productDBRepository.SelectIdsOfProductsAsync();
+
+            int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity);
 
             #region Thread
             //List<Thread> threads = new List<Thread>();
@@ -113,7 +113,7 @@ namespace Infrastructure.Services
             //    {
             //        try
             //        {
-            //            ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber).Result;
+            //            ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
             //            response.TypeOfExtraction = "Thread";
 
             //            lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
@@ -129,10 +129,6 @@ namespace Infrastructure.Services
             //    threads.Add(thread);
             //}
             //threads.ForEach(thread => thread.Join());
-
-            #region SalvandoUmPorUm
-            //await SaveProductsResponsesOneByOneAsync(productsResponses);
-            #endregion
 
             #region BulkInsert
             //await BulkInsertProductsDetailsAsync(productsResponses);
@@ -159,7 +155,7 @@ namespace Infrastructure.Services
             //    {
             //        try
             //        {
-            //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+            //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
             //            response.TypeOfExtraction = "Task";
 
             //            // Bloqueio para garantir acesso exclusivo à lista
@@ -182,10 +178,6 @@ namespace Infrastructure.Services
 
             //await Task.WhenAll(tasks);
 
-            #region SalvandoUmPorUm
-            //await SaveProductsResponsesOneByOneAsync(productsResponses);
-            #endregion
-
             #region BulkInsert
             //await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
@@ -200,7 +192,7 @@ namespace Infrastructure.Services
             //    int currentRequestNumber = Interlocked.Increment(ref requestNumber);
             //    try
             //    {
-            //        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, currentRequestNumber).Result;
+            //        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
             //        response.TypeOfExtraction = "Parallel";
             //        lock (productsResponses) // Trava
             //        {
@@ -211,10 +203,6 @@ namespace Infrastructure.Services
             //    {
             //    }
             //});
-
-            #region SalvandoUmPorUm
-            //await SaveProductsResponsesOneByOneAsync(productsResponses);
-            #endregion
 
             #region BulkInsert
             //await BulkInsertProductsDetailsAsync(productsResponses);
@@ -231,7 +219,7 @@ namespace Infrastructure.Services
 
                 try
                 {
-                    ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber);
+                    ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
                     response.TypeOfExtraction = "Sequential";
                     productsResponses.Add(response);
                 }
@@ -239,10 +227,6 @@ namespace Infrastructure.Services
                 {
                 }
             }
-
-            #region SalvandoUmPorUm
-            //await SaveProductsResponsesOneByOneAsync(productsResponses);
-            #endregion
 
             #region BulkInsert
             await BulkInsertProductsDetailsAsync(productsResponses);

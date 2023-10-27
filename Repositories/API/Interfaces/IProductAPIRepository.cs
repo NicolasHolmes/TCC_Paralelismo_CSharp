@@ -8,5 +8,7 @@ namespace Repositories.API.Interfaces
         public Task<HttpResponseMessage> GetProductsAsync();
 
         public Task<HttpResponseMessage> GetProductDetailsAsync(int id);
+
+        public Task<HttpResponseMessage> GetRequestsQuantityAsync();
     }
 }

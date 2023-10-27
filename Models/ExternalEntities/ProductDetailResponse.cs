@@ -12,6 +12,8 @@ namespace Models.ExternalEntities
         public int StockQuantity { get; set; }
         public DateTime? CreationDate { get; set; }
         public string TypeOfExtraction { get; set; }
+        public int RequestsQuantity { get; set; }
+        public int TimesItRan { get; set; }
 
     }
 }
