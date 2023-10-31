@@ -156,8 +156,10 @@ namespace Infrastructure.Services
             //    {
             //        try
             //        {
+            //            string typeOfExtraction = "Task";
+            //            int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
             //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
-            //            response.TypeOfExtraction = "Task";
+            //            response.TypeOfExtraction = typeOfExtraction;
 
             //            // Bloqueio para garantir acesso exclusivo à lista
             //            lock (lockObject)
@@ -188,13 +190,16 @@ namespace Infrastructure.Services
             #region Parallel
             //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
 
-            //Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, id =>
+            //Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, async id =>
             //{
             //    int currentRequestNumber = Interlocked.Increment(ref requestNumber);
             //    try
             //    {
+            //        string typeOfExtraction = "Parallel";
+            //        int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
             //        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
-            //        response.TypeOfExtraction = "Parallel";
+            //        response.TypeOfExtraction = typeOfExtraction;
+
             //        lock (productsResponses) // Trava
             //        {
             //            productsResponses.Add(response);
@@ -220,8 +225,11 @@ namespace Infrastructure.Services
 
             //    try
             //    {
+            //        string typeOfExtraction = "Sequential";
+            //        int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
             //        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
-            //        response.TypeOfExtraction = "Sequential";
+            //        response.TypeOfExtraction = typeOfExtraction;
+
             //        productsResponses.Add(response);
             //    }
             //    catch (Exception ex)
