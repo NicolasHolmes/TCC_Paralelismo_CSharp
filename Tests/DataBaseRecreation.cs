@@ -132,8 +132,8 @@ namespace Tests
                 {
                     // Populando a tabela Produtos
                     command.CommandText = @"
-                        DECLARE @BatchSize INT = 10; --Número de linhas por lote
-                        DECLARE @TotalRows INT = 10; --Total de linhas a serem inseridas
+                        DECLARE @BatchSize INT = 100; --Número de linhas por lote
+                        DECLARE @TotalRows INT = 100; --Total de linhas a serem inseridas
                         DECLARE @CurrentRow INT = 1;
 
                         BEGIN TRANSACTION; -- Iniciar a primeira transação
@@ -170,7 +170,7 @@ namespace Tests
                         DECLARE @MinDate DATE = '2023-01-01';
                         DECLARE @MaxDate DATE = '2100-12-31';
                         -- Loop para inserir as linhas
-                        WHILE @Counter <= 10
+                        WHILE @Counter <= 100
                         BEGIN
                             -- Gerar dados aleatórios
                             DECLARE @RandomName VARCHAR(50) = 'Produto ' + CAST(@Counter AS VARCHAR(10));

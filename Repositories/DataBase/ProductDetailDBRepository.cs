@@ -16,12 +16,12 @@ namespace Repositories.DataBase
         {
             _connection = connection;
         }
-        public async Task<int> SelectTimesItRan(int requestsQuantity)
+        public async Task<int> SelectTimesItRan(int requestsQuantity, string typeOfExtraction)
         {
             var query = new StringBuilder();
 
             query.Append("SELECT MAX([TimesItRan]) FROM [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ");
-            query.Append("WHERE [RequestsQuantity] = @RequestsQuantity");
+            query.Append("WHERE [RequestsQuantity] = @RequestsQuantity and [TypeOfExtraction] = @TypeOfExtraction");
 
             try
             {
