@@ -7,7 +7,7 @@ namespace Repositories.DataBase.Interfaces
 {
     public interface IProductDetailDBRepository : IRelationalBaseRepository<ProductDetailEntity>
     {
-        public Task<int> SelectTimesItRan(int requestsQuantity, string typeOfExtraction);
+        public Task<int> SelectTimesItRan(int requestsQuantity);
         public Task BulkInsertProductsDetail(IEnumerable<ProductDetailEntity> entities);
 
     }

@@ -41,7 +41,6 @@ namespace Infrastructure.Services
             ProductDetailResponse productsDetailResponse = JsonConvert.DeserializeObject<ProductDetailResponse>(responseContent);
             productsDetailResponse.CreationDate = DateTime.Now;
             productsDetailResponse.RequestsQuantity = requestsQuantity;
-            
             productsDetailResponse.TimesItRan = timesItRan + 1;
 
             return productsDetailResponse;
@@ -99,43 +98,43 @@ namespace Infrastructure.Services
 
             List<int> ids = await _productDBRepository.SelectIdsOfProductsAsync();
 
+            int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity);
+
             #region Thread
-            List<Thread> threads = new List<Thread>();
-            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
-            object lockObject = new object(); // Objeto de trava
+            //List<Thread> threads = new List<Thread>();
+            //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
+            //object lockObject = new object(); // Objeto de trava
 
 
-            foreach (int id in ids)
-            {
-                requestNumber++;
-                Thread thread = new Thread(async () =>
-                {
-                    try
-                    {
-                        string typeOfExtraction = "Thread";
-                        int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
-                        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
-                        response.TypeOfExtraction = typeOfExtraction;
+            //foreach (int id in ids)
+            //{
+            //    requestNumber++;
+            //    Thread thread = new Thread(() =>
+            //    {
+            //        try
+            //        {
+            //            ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
+            //            response.TypeOfExtraction = "Thread";
 
-                        lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
-                        {
-                            productsResponses.Add(response);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                    }
-                });
-                thread.Start();
-                threads.Add(thread);
-            }
-            threads.ForEach(thread => thread.Join());
+            //            lock (lockObject) // Garantindo que não haverá acesso simultâneo na lista
+            //            {
+            //                productsResponses.Add(response);
+            //            }
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //        }
+            //    });
+            //    thread.Start();
+            //    threads.Add(thread);
+            //}
+            //threads.ForEach(thread => thread.Join());
 
             #region BulkInsert
-            await BulkInsertProductsDetailsAsync(productsResponses);
+            //await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
 
-            threads.Clear();
+            //threads.Clear();
             #endregion
 
             #region Task
@@ -156,10 +155,8 @@ namespace Infrastructure.Services
             //    {
             //        try
             //        {
-            //            string typeOfExtraction = "Task";
-            //            int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
             //            ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
-            //            response.TypeOfExtraction = typeOfExtraction;
+            //            response.TypeOfExtraction = "Task";
 
             //            // Bloqueio para garantir acesso exclusivo à lista
             //            lock (lockObject)
@@ -188,30 +185,27 @@ namespace Infrastructure.Services
             #endregion
 
             #region Parallel
-            //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
+            List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
 
-            //Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, async id =>
-            //{
-            //    int currentRequestNumber = Interlocked.Increment(ref requestNumber);
-            //    try
-            //    {
-            //        string typeOfExtraction = "Parallel";
-            //        int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
-            //        ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
-            //        response.TypeOfExtraction = typeOfExtraction;
-
-            //        lock (productsResponses) // Trava
-            //        {
-            //            productsResponses.Add(response);
-            //        }
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //    }
-            //});
+            Parallel.ForEach(ids, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, id =>
+            {
+                int currentRequestNumber = Interlocked.Increment(ref requestNumber);
+                try
+                {
+                    ProductDetailResponse response = GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan).Result;
+                    response.TypeOfExtraction = "Parallel";
+                    lock (productsResponses) // Trava
+                    {
+                        productsResponses.Add(response);
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+            });
 
             #region BulkInsert
-            //await BulkInsertProductsDetailsAsync(productsResponses);
+            await BulkInsertProductsDetailsAsync(productsResponses);
             #endregion
 
             #endregion
@@ -225,11 +219,8 @@ namespace Infrastructure.Services
 
             //    try
             //    {
-            //        string typeOfExtraction = "Sequential";
-            //        int timesItRan = await _productDetailDBRepository.SelectTimesItRan(requestsQuantity, typeOfExtraction);
             //        ProductDetailResponse response = await GetProductsDetailsResponseByApiAsync(id, requestNumber, requestsQuantity, timesItRan);
-            //        response.TypeOfExtraction = typeOfExtraction;
-
+            //        response.TypeOfExtraction = "Sequential";
             //        productsResponses.Add(response);
             //    }
             //    catch (Exception ex)

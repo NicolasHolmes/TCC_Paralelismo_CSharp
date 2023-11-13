@@ -5,44 +5,33 @@ using Repositories.Connections.Interfaces;
 using Repositories.DataBase.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace Repositories.DataBase
 {
     public class ProductDetailDBRepository : RelationalBaseRepository<ProductDetailEntity>, IProductDetailDBRepository
     {
         IDbConnectionExtractBot _connection;
-
         public ProductDetailDBRepository(IDbConnectionExtractBot connection) : base(connection)
         {
             _connection = connection;
         }
-
-        public async Task<int> SelectTimesItRan(int requestsQuantity, string typeOfExtraction)
+        public async Task<int> SelectTimesItRan(int requestsQuantity)
         {
+            var query = new StringBuilder();
+
+            query.Append("SELECT MAX([TimesItRan]) FROM [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ");
+            query.Append("WHERE [RequestsQuantity] = @RequestsQuantity and TypeOfExtraction = 'Parallel' ");
+
             try
             {
-                var query = new StringBuilder();
-                query.Append("SELECT MAX([TimesItRan]) FROM [TCC].[dbo].[DetalhesProdutosVindosDaAPI] ");
-                query.Append("WHERE [RequestsQuantity] = @RequestsQuantity and [TypeOfExtraction] = @TypeOfExtraction");
-
-                using (var connection = new SqlConnection(_connection.ConnectionString)) // Use _connection.ConnectionString para a string de conexão
-                {
-                    await connection.OpenAsync();
-
-                    var result = await connection.ExecuteScalarAsync<int>(query.ToString(), new { RequestsQuantity = requestsQuantity, TypeOfExtraction = typeOfExtraction });
-
-                    return result;
-                }
+                return await _connection.ExecuteScalarAsync<int>(query.ToString(), new { RequestsQuantity = requestsQuantity });
             }
             catch (Exception ex)
             {
-                throw; // Você pode considerar fazer um tratamento de exceção mais informativo aqui
+                throw;
             }
         }
-
         public async Task BulkInsertProductsDetail(IEnumerable<ProductDetailEntity> entities)
         {
             _connection.Open();
@@ -53,7 +42,7 @@ namespace Repositories.DataBase
                 {
                     // Define a consulta SQL para o Bulk Insert
                     string sql = "INSERT INTO [TCC].[dbo].[DetalhesProdutosVindosDaAPI] (IdEndpointProduct, Name, Description, Price, ExpirationDate, BarCode, StockQuantity, TypeOfExtraction, RequestsQuantity, TimesItRan, CreationDate) " +
-                                         "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @TypeOfExtraction, @RequestsQuantity, @TimesItRan, @CreationDate)";
+                                             "VALUES (@IdEndpointProduct, @Name, @Description, @Price, @ExpirationDate, @BarCode, @StockQuantity, @TypeOfExtraction, @RequestsQuantity, @TimesItRan, @CreationDate)";
 
                     // Executa o Bulk Insert
                     await _connection.ExecuteAsync(sql, entities, transaction: transaction);
