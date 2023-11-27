@@ -9,7 +9,8 @@ namespace ExtractBot.Api
     {
         static async Task Main(string[] args)
         {
-            ConsoleExtension.WriteLog("---------ExtractBot---------");
+            ConsoleExtension.WriteLog("---------ExtractBot---------\n" + 
+                "Escreva 'help', caso seja a primeira vez de uso");
             ConsoleKeyInfo pressedKey;
             string commandText = string.Empty;
 

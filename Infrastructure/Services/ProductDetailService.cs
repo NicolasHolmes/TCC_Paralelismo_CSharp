@@ -138,7 +138,7 @@ namespace Infrastructure.Services
             #endregion
 
             #region Task
-            //int maxParallelism = 16; // Defina o número máximo de tarefas paralelas que você deseja
+            //int maxParallelism = 16; // Define o número máximo de tarefas paralelas
 
             //List<Task> tasks = new List<Task>();
             //List<ProductDetailResponse> productsResponses = new List<ProductDetailResponse>();
@@ -169,7 +169,7 @@ namespace Infrastructure.Services
             //        }
             //        finally
             //        {
-            //            semaphore.Release(); // Libere a seção crítica
+            //            semaphore.Release(); // Libera a seção crítica
             //        }
             //    });
 
